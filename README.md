@@ -1,2 +1,2 @@
 # treelogic
-Propositional logic satisfiability tester.
+Predicate logic satisfiability tester.
