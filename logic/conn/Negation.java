@@ -4,7 +4,7 @@ import logic.*;
 
 public class Negation extends UnaryConn
 {
-    public String getConn() { return "~"; }
+    public String getConn() { return "¬"; }
 
     public Negation(WFF sub) {
         super(sub);

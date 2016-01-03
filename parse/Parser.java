@@ -340,7 +340,9 @@ public class Parser
             args.add(new Term(next.sym));
         }
 
-        return new ParseResult(new Predicate(pred.sym, args.size(), (Term[])args.toArray()),
+        return new ParseResult(new Predicate(pred.sym,
+                                             args.size(),
+                                             args.toArray(new Term[args.size()])),
                                consumed);
 
     }
@@ -352,7 +354,7 @@ public class Parser
 
         while (iter.hasNext()) {
             b.addFirst(iter.next());
-            a.remove();
+            iter.remove();
         }
     }
 }

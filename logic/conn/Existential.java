@@ -7,7 +7,7 @@ public class Existential extends UnaryConn
 {
     private char var;
 
-    public String getConn() { return "A" + Character.toString(var); }
+    public String getConn() { return "∃" + Character.toString(var); }
 
     public Existential(WFF sub, char var) {
         super(sub);

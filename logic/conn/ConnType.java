@@ -6,7 +6,7 @@ public enum ConnType
     {
         public String toString()
         {
-            return " <-> ";
+            return " ↔ ";
         }
         
     }, 
@@ -15,7 +15,7 @@ public enum ConnType
     {
         public String toString()
         {
-            return " -> ";
+            return " → ";
         }
         
     }, 
@@ -24,7 +24,7 @@ public enum ConnType
     {
         public String toString()
         {
-            return " | ";
+            return " ∨ ";
         }
         
     },
@@ -33,7 +33,7 @@ public enum ConnType
     {
         public String toString()
         {
-            return " & ";
+            return " ∧ ";
         }
         
     }
