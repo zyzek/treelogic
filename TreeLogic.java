@@ -2,41 +2,13 @@ import logic.*;
 import logic.conn.*;
 import parse.*;
 
-//import java.util.ArrayList;
 import java.util.LinkedList;
-
 import javax.swing.*;
 
-
-import parse.TokenType;
-
-public class TreeLogic {
-    public static void main(String[] args) {
-        /*Term x = new Term('x');
-        Term y = new Term('y');
-        Term a = new Term('a');
-
-        ArrayList<Term> PArgs = new ArrayList<Term>();
-        PArgs.add(x);
-
-        ArrayList<Term> QArgs = new ArrayList<Term>();
-        QArgs.add(a);
-        QArgs.add(y);
-
-        WFF P = new Predicate('P', 1, PArgs.toArray(new Term[PArgs.size()]));
-        WFF Q = new Predicate('Q', 2, QArgs.toArray(new Term[QArgs.size()]));
-        WFF R = new Predicate('R');
-        WFF T = new Verum();
-        WFF F = new Falsum();
-
-        WFF conj = new BinaryConn(P, Q, ConnType.CONJ);
-        WFF disj = new BinaryConn(R, conj, ConnType.DISJ);
-        WFF cond = new BinaryConn(disj, T, ConnType.COND);
-        WFF bicond = new BinaryConn(F, cond, ConnType.BICOND);
-        WFF univ = new Universal(bicond, 'y');
-        WFF exist = new Existential(univ, 'x');
-        WFF neg = new Negation(exist);*/
-        
+public class TreeLogic
+{
+    public static void main(String[] args)
+    {
         LinkedList<Token> sequence = new LinkedList<Token>();
 
         sequence.addLast(new Token(TokenType.NEG, '~'));
@@ -67,9 +39,9 @@ public class TreeLogic {
         sequence.addLast(new Token(TokenType.RPAREN, ')'));
         sequence.addLast(new Token(TokenType.RPAREN, ')'));
         
-        WFF neg = Parser.parse(sequence);
+        WFF wff = Parser.parse(sequence);
 
-        final String wffString = neg.toString();
+        final String wffString = wff.toString();
 
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -79,7 +51,8 @@ public class TreeLogic {
 
     }
 
-    private static void showGUI(String text) {
+    private static void showGUI(String text)
+    {
         // Create a window.
         JFrame frame = new JFrame("Logical Tree");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -26,21 +26,22 @@ import java.util.Iterator;
  *
  * As a grammar:
  *
- * WFF      :=  COND | COND <-> WFF
- * COND     :=  DISJ | DISJ -> WFF
- * DISJ     :=  CONJ | CONJ v WFF
- * CONJ     :=  UNARY | UNARY ^ WFF
+ * WFF      :=  COND | COND ↔ WFF
+ * COND     :=  DISJ | DISJ → WFF
+ * DISJ     :=  CONJ | CONJ ∨ WFF
+ * CONJ     :=  UNARY | UNARY ∧ WFF
  * UNARY    :=  PREF* BASE
- * BASE     :=  PRED | (WFF)
- * PREF     :=  negation | existential | universal
+ * BASE     :=  PRED | ( WFF )
+ * PREF     :=  ¬ | ∃ LOWER+ | ∀ LOWER+
  * PRED     :=  UPPER LOWER*
- * UPPER    :=  [A...Z]
- * LOWER    :=  [a...z]
+ * UPPER    :=  [A..Z]
+ * LOWER    :=  [a..z]
  *
- * That the hierarchy descent takes place first upon the left operand means that
+ * That the descent of the hierarchy takes place first upon the left operand means that
  * the binary operators are right-associative.
  */
 
+// Classes implementing this handle parsing the operands of binary connectives.
 interface ParseLevel
 {
     public ParseResult parse(LinkedList<Token> sequence);
@@ -135,10 +136,11 @@ class PrefixParser implements ParseLevel
                 break;
             }
         }
-
+        
+        // Having consumed all leading unaries, parse the wff they bind.
         ParseResult res = Parser.parseBase(sequence);
         WFF base = res.wff;
-
+        
         if (base == null)
         {
             Parser.transferSequence(consumed, sequence);
@@ -195,6 +197,8 @@ class PrefixParser implements ParseLevel
     }
 }
 
+// This structure contains the wff returned by a parser, along with the sequence
+// of tokens that were consumed to produce it.
 class ParseResult
 {
     WFF wff;
@@ -207,8 +211,16 @@ class ParseResult
     }
 }
 
+
+// We consume tokens from left to right.
+// Each parsing function returns either: 
+//  - The successfully-parsed wff, with the consumed symbols removed from the input sequence;
+//  - null, if the parse fails, with the token sequence unmodified.
+// The consumed token list is required so that, if the parse fails at any point, the input
+// sequence can be reconstituted, and alternative parses tried.
 public class Parser
 {
+    // These are clumsy, but save some code duplication... I wish I had first-class functions.
     static ParseLevel bcp = new BicondParser();
     static ParseLevel cp = new CondParser();
     static ParseLevel dp = new DisjParser();
@@ -220,19 +232,24 @@ public class Parser
     {
         ParseResult res = parseWFF(sequence);
 
-        if (res == null) {
+        if (res == null)
+        {
             return null;
         }
-
+        
+        // Note that we don't check if there are any unconsumed tokens.
+        // One might consider such a case to result in a failed parse: we don't do so here,
+        // so that technically-invalid formulae could result in successful parses.
         return res.wff;
     }
-
+    
     public static ParseResult parseWFF(LinkedList<Token> sequence)
     {
         return bcp.parse(sequence);
     }
    
     /*
+     * Implements the actual logic of the precedence hierarchy.
      * Match either with the given parser by itself,
      * or with that parser, followed by the given connective, then a general WFF.
      */
@@ -305,7 +322,6 @@ public class Parser
         }
 
         return base;
-
     }
     
 

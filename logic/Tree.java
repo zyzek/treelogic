@@ -8,7 +8,8 @@ public class Tree {
 
 }
 
-class TreeNode {
+class TreeNode
+{
     ArrayList<WFF> forms;
     ArrayList<WFF> handled;
 
@@ -19,7 +20,8 @@ class TreeNode {
     boolean closed;
 
 
-    public TreeNode(ArrayList<WFF> forms, TreeNode parent, ArrayList<WFF> basicForms) {
+    public TreeNode(ArrayList<WFF> forms, TreeNode parent, ArrayList<WFF> basicForms)
+    {
         this.forms = forms;
         this.handled = new ArrayList<WFF>();
 
@@ -31,10 +33,12 @@ class TreeNode {
 
         Iterator<WFF> iter = this.forms.iterator();
 
-        while (iter.hasNext()) {
+        while (iter.hasNext())
+        {
             WFF form = iter.next();
 
-            if (form.isBasic()) {
+            if (form.isBasic())
+            {
                 iter.remove();
                 this.handled.add(form);
                 this.addBasicForm(form);
@@ -44,14 +48,21 @@ class TreeNode {
         this.checkClosure();
     }
     
-    public void addBasicForm(WFF form) {
-        if (form.isBasic()) {
-            if (form instanceof Falsum) {
+    public void addBasicForm(WFF form)
+    {
+        if (form.isBasic())
+        {
+            if (form instanceof Falsum)
+            {
                 form = new Negation(new Verum());
-            } else if (form instanceof Negation && ((Negation)form).sub instanceof Falsum) {
+            }
+            else if (form instanceof Negation && ((Negation)form).sub instanceof Falsum)
+            {
                 form = new Verum();
             }
-            if (!this.basicForms.contains(form)) {
+
+            if (!this.basicForms.contains(form))
+            {
                 this.basicForms.add(form);
             }
         }
@@ -61,28 +72,36 @@ class TreeNode {
     public void checkClosure() {
        boolean nowClosed = !this.children.isEmpty();
 
-       for (TreeNode child : this.children) {
-           if (!child.closed) {
+       for (TreeNode child : this.children)
+       {
+           if (!child.closed)
+           {
                 nowClosed = false;
                 break;
            }
        }
 
-       if (!nowClosed) {
-          for (int i = 0; i < this.basicForms.size(); ++i) {
-            for (int j = i + 1; j < this.basicForms.size(); ++j) {
-                if (this.basicForms.get(i).contradicts(this.basicForms.get(j))) {
-                    nowClosed = true;
-                    i = this.basicForms.size();
-                    break;
-                }
-            }
-          }
+       if (!nowClosed)
+       {
+           for (int i = 0; i < this.basicForms.size(); ++i)
+           {
+               for (int j = i + 1; j < this.basicForms.size(); ++j)
+               {
+                   if (this.basicForms.get(i).contradicts(this.basicForms.get(j)))
+                   {
+                       nowClosed = true;
+                       i = this.basicForms.size();
+                       break;
+                   }
+               }
+           }
        }
 
-       if (nowClosed) {
+       if (nowClosed)
+       {
             this.closed = true;
-            if (this.parent != null) {
+            if (this.parent != null)
+            {
                 this.parent.checkClosure();
             }
        }
@@ -91,19 +110,29 @@ class TreeNode {
     
     
     // Add a collection of formulae to the leaves of a subtree.
-    public void addLeafForms(ArrayList<WFF> newForms) {
-        if (!this.closed) {
-            if (this.children.isEmpty()) {
-                for (WFF form : newForms) {
-                    if (form.isBasic()) {
+    public void addLeafForms(ArrayList<WFF> newForms)
+    {
+        if (!this.closed)
+        {
+            if (this.children.isEmpty())
+            {
+                for (WFF form : newForms)
+                {
+                    if (form.isBasic())
+                    {
                         this.handled.add(form);
                         this.basicForms.add(form);
-                    } else {
+                    }
+                    else
+                    {
                         this.forms.add(form);
                     }
                 }
-            } else {
-                for (TreeNode child : this.children) {
+            }
+            else
+            {
+                for (TreeNode child : this.children)
+                {
                     child.addLeafForms(newForms);
                 }
             }
@@ -114,27 +143,34 @@ class TreeNode {
 
 
     // Add a collection of formulae as children of each leaf of a subtree.
-    public void addLeafBranches(ArrayList<WFF> newChildren) {
-        if (!this.closed) {
-            if (this.children.isEmpty()) {
-                for (WFF form : newChildren) {
+    public void addLeafBranches(ArrayList<WFF> newChildren)
+    {
+        if (!this.closed)
+        {
+            if (this.children.isEmpty())
+            {
+                for (WFF form : newChildren)
+                {
                     ArrayList<WFF> newFormList = new ArrayList<WFF>();
                     newFormList.add(form);
                     
                     ArrayList<WFF> newBasicForms = new ArrayList<WFF>();
-                    for (WFF bForm : this.basicForms) {
+                    for (WFF bForm : this.basicForms)
+                    {
                         newBasicForms.add(bForm);
                     }
 
                     TreeNode newChild = new TreeNode(newFormList, this, newBasicForms);
                     this.children.add(newChild);
                 }
-            } else {
-                for (TreeNode child : children) {
+            }
+            else
+            {
+                for (TreeNode child : children)
+                {
                     child.addLeafBranches(newChildren); 
                 }
             }
         }
     }
-
 }

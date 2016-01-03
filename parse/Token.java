@@ -2,8 +2,8 @@ package parse;
 
 import parse.TokenType;
 
-public class Token {
-
+public class Token
+{
     public TokenType token;
     public char sym;
 

@@ -4,15 +4,18 @@ public class Term
 {
     private char sym;
 
-    public Term(char sym) {
+    public Term(char sym)
+    {
         this.sym = sym;
     }
 
-    public char getSym() {
+    public char getSym()
+    {
         return this.sym;
     }
 
-    public String toString() {
+    public String toString()
+    {
         return Character.toString(sym);
     }
 }

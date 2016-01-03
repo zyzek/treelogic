@@ -3,11 +3,13 @@ import logic.*;
 
 public class Verum extends Predicate
 {
-    public Verum() {
+    public Verum()
+    {
         super('T');
     }
 
-    public boolean contradicts(WFF prop) {
+    public boolean contradicts(WFF prop)
+    {
         return (prop instanceof Falsum) || 
                (prop instanceof Negation && ((Negation)prop).sub instanceof Verum);
     }

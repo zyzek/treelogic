@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 /*
  * A well-formed formula is as follows:
- *  A predicate, such as P(x), Q(a, b), R, etc., is a WFF.
+ *  A predicate, such as Px, Qab, R, etc., is a WFF.
  *  A pair of WFFs with a two-place connective between them, parens around the pair, is a WFF.
  *  A WFF preceded by a one-place connective is a WFF.
  *  A WFF preceded by a quantifier is a WFF.

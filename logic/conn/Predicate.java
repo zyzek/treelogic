@@ -8,46 +8,67 @@ public class Predicate extends WFF
     private int arity;
     private Term[] args;
     
-    public Predicate (char sym, int arity, Term[] args) {
+    public Predicate (char sym, int arity, Term[] args)
+    {
         this.sym = sym;
         this.arity = Math.max(0, arity);
         this.args = args;
     }
 
-    public Predicate (char sym) {
+    public Predicate (char sym)
+    {
         this(sym, 0, null);
     }
 
-    public boolean equals(WFF prop) {
-        if (prop instanceof Predicate) {
+    public boolean equals(WFF prop)
+    {
+        if (prop instanceof Predicate)
+        {
             return this.sym == ((Predicate)prop).sym && 
                    this.args.equals(((Predicate)prop).args);
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
 
-    public boolean contradicts(WFF prop) {
-        if (prop instanceof Negation) {
+    public boolean contradicts(WFF prop)
+    {
+        if (prop instanceof Negation)
+        {
             return ((Negation)prop).sub.equals(this);
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
     
-    public boolean isBasic() { return true; }
+    public boolean isBasic()
+    {
+        return true;
+    }
 
-/*    public String toString() {
-        if (this.arity == 0) { return Character.toString(this.sym); }
+// Might need this later if I want to add functions later, as it prints P(x, y, z)
+// instead of Pxyz
+/*    public String toString()
+ *    {
+        if (this.arity == 0)
+        {
+            return Character.toString(this.sym);
+        }
 
         StringBuilder sb = new StringBuilder();
 
         sb.append(this.sym);
         sb.append('(');
         
-        for (int i = 0; i < this.args.length; ++i) {
+        for (int i = 0; i < this.args.length; ++i)
+        {
             sb.append(this.args[i]);
-            if (i < this.args.length - 1) {
+            if (i < this.args.length - 1)
+            {
                 sb.append(", ");
             }
         }
@@ -57,18 +78,19 @@ public class Predicate extends WFF
         return sb.toString();
     }*/
 
-    public String toString() {
+    public String toString()
+    {
         if (this.arity == 0) return Character.toString(this.sym);
 
         StringBuilder sb = new StringBuilder();
         sb.append(this.sym);
 
-        for (Term t : this.args) {
+        for (Term t : this.args)
+        {
             sb.append(t);
         }
 
         return sb.toString();
-
     }
 }
 
