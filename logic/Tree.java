@@ -92,15 +92,20 @@ class TreeNode {
     
     // Add a collection of formulae to the leaves of a subtree.
     public void addLeafForms(ArrayList<WFF> newForms) {
-        if (this.children.isEmpty() && !this.closed) {
-            for (WFF form : newForms) {
-                this.forms.add(form);
-            }
-        } else {
-            for (TreeNode child : children) {
-               if (!child.closed) {
+        if (!this.closed) {
+            if (this.children.isEmpty()) {
+                for (WFF form : newForms) {
+                    if (form.isBasic()) {
+                        this.handled.add(form);
+                        this.basicForms.add(form);
+                    } else {
+                        this.forms.add(form);
+                    }
+                }
+            } else {
+                for (TreeNode child : this.children) {
                     child.addLeafForms(newForms);
-               }
+                }
             }
         }
 
@@ -110,22 +115,22 @@ class TreeNode {
 
     // Add a collection of formulae as children of each leaf of a subtree.
     public void addLeafBranches(ArrayList<WFF> newChildren) {
-        if (this.children.isEmpty() && !this.closed) {
-            for (WFF form : newChildren) {
-                ArrayList<WFF> newFormList = new ArrayList<WFF>();
-                newFormList.add(form);
-                
-                ArrayList<WFF> newBasicForms = new ArrayList<WFF>();
-                for (WFF bForm : this.basicForms) {
-                    newBasicForms.add(bForm);
-                }
+        if (!this.closed) {
+            if (this.children.isEmpty()) {
+                for (WFF form : newChildren) {
+                    ArrayList<WFF> newFormList = new ArrayList<WFF>();
+                    newFormList.add(form);
+                    
+                    ArrayList<WFF> newBasicForms = new ArrayList<WFF>();
+                    for (WFF bForm : this.basicForms) {
+                        newBasicForms.add(bForm);
+                    }
 
-                TreeNode newChild = new TreeNode(newFormList, this, newBasicForms);
-                this.children.add(newChild);
-            }
-        } else {
-            for (TreeNode child : children) {
-                if (!child.closed) {
+                    TreeNode newChild = new TreeNode(newFormList, this, newBasicForms);
+                    this.children.add(newChild);
+                }
+            } else {
+                for (TreeNode child : children) {
                     child.addLeafBranches(newChildren); 
                 }
             }

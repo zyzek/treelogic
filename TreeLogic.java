@@ -18,16 +18,16 @@ public class TreeLogic {
         QArgs.add(a);
         QArgs.add(y);
 
-        WFF P = new Predicate('P', 1, PArgs);
-        WFF Q = new Predicate('Q', 2, QArgs);
+        WFF P = new Predicate('P', 1, PArgs.toArray(new Term[PArgs.size()]));
+        WFF Q = new Predicate('Q', 2, QArgs.toArray(new Term[QArgs.size()]));
         WFF R = new Predicate('R');
         WFF T = new Verum();
         WFF F = new Falsum();
 
-        WFF conj = new Conjunction(P, Q);
-        WFF disj = new Disjunction(R, conj);
-        WFF cond = new Conditional(disj, T);
-        WFF bicond = new Biconditional(F, cond);
+        WFF conj = new BinaryConn(P, Q, ConnType.CONJ);
+        WFF disj = new BinaryConn(R, conj, ConnType.DISJ);
+        WFF cond = new BinaryConn(disj, T, ConnType.COND);
+        WFF bicond = new BinaryConn(F, cond, ConnType.BICOND);
         WFF univ = new Universal(bicond, 'y');
         WFF exist = new Existential(univ, 'x');
         WFF neg = new Negation(exist);

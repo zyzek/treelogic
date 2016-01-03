@@ -2,15 +2,13 @@ package logic.conn;
 
 import logic.*;
 
-import java.util.ArrayList;
-
 public class Predicate extends WFF
 {
     private char sym;
     private int arity;
-    private ArrayList<Term> args;
+    private Term[] args;
     
-    public Predicate (char sym, int arity, ArrayList<Term> args) {
+    public Predicate (char sym, int arity, Term[] args) {
         this.sym = sym;
         this.arity = Math.max(0, arity);
         this.args = args;
@@ -39,7 +37,7 @@ public class Predicate extends WFF
     
     public boolean isBasic() { return true; }
 
-    public String toString() {
+/*    public String toString() {
         if (this.arity == 0) { return Character.toString(this.sym); }
 
         StringBuilder sb = new StringBuilder();
@@ -47,9 +45,9 @@ public class Predicate extends WFF
         sb.append(this.sym);
         sb.append('(');
         
-        for (int i = 0; i < this.args.size(); ++i) {
-            sb.append(this.args.get(i));
-            if (i < this.args.size() - 1) {
+        for (int i = 0; i < this.args.length; ++i) {
+            sb.append(this.args[i]);
+            if (i < this.args.length - 1) {
                 sb.append(", ");
             }
         }
@@ -57,6 +55,20 @@ public class Predicate extends WFF
         sb.append(')');
         
         return sb.toString();
+    }*/
+
+    public String toString() {
+        if (this.arity == 0) return Character.toString(this.sym);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.sym);
+
+        for (Term t : this.args) {
+            sb.append(t);
+        }
+
+        return sb.toString();
+
     }
 }
 

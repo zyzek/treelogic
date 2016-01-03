@@ -1,27 +1,41 @@
 package logic.conn;
 
 import logic.*;
+import logic.conn.*;
 
-public abstract class BinaryConn extends WFF
+public class BinaryConn extends WFF
 {
     public final WFF left, right;
+    public final ConnType conn;
     
-    public BinaryConn(WFF left, WFF right) {
+    public BinaryConn(WFF left, WFF right, ConnType conn)
+    {
         this.left = left;
         this.right = right;
+        this.conn = conn;
     }
 
-    public abstract String getConn();
+    public ConnType getConn()
+    {
+        return this.conn;
+    }
     
-    public boolean isBasic() { return false; }
+    public boolean isBasic()
+    {
+        return false;
+    }
 
-    public String toString() {
+    public String toString()
+    {
         return "(" + this.left.toString() + this.getConn() + this.right.toString() + ")";
     }
 
-    public boolean equals(WFF prop) {
-        if (prop instanceof BinaryConn) {
-            if (((BinaryConn)prop).getConn().equals(this.getConn())) {
+    public boolean equals(WFF prop)
+    {
+        if (prop instanceof BinaryConn)
+        {
+            if (((BinaryConn)prop).getConn().equals(this.getConn()))
+            {
                 return this.left.equals(((BinaryConn)prop).left) && 
                        this.right.equals(((BinaryConn)prop).right);
             }
@@ -30,7 +44,8 @@ public abstract class BinaryConn extends WFF
         return false;
     }
 
-    public boolean contradicts(WFF prop) {
+    public boolean contradicts(WFF prop)
+    {
         return (prop instanceof Negation) && (((Negation)prop).sub.equals(this));
     }
 }
