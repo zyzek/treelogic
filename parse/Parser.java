@@ -26,10 +26,9 @@ import java.util.Iterator;
  *
  * As a grammar:
  *
- * WFF      :=  COND | COND ↔ WFF
- * COND     :=  DISJ | DISJ → WFF
- * DISJ     :=  CONJ | CONJ ∨ WFF
- * CONJ     :=  UNARY | UNARY ∧ WFF
+ * WFF      :=  WFF ↔ COND | COND
+ * DISJ     :=  WFF ∨ CONJ | CONJ
+ * CONJ     :=  WFF ∧ UNARY | UNARY
  * UNARY    :=  PREF* BASE
  * BASE     :=  PRED | ( WFF )
  * PREF     :=  ¬ | ∃ LOWER+ | ∀ LOWER+
@@ -37,8 +36,10 @@ import java.util.Iterator;
  * UPPER    :=  [A..Z]
  * LOWER    :=  [a..z]
  *
- * That the descent of the hierarchy takes place first upon the left operand means that
- * the binary operators are right-associative.
+ * That the descent of the hierarchy takes place upon the right operand means that
+ * the binary operators are left-associative.
+ * This may change the meaning of expressions involving conditionals, if you are expecting
+ * some other associativity behaviour -- so parenthesise stuff!
  */
 
 // Classes implementing this handle parsing the operands of binary connectives.
@@ -102,18 +103,18 @@ class PrefixParser implements ParseLevel
             
             next = sequence.peekFirst();
 
-            if (next.token == TokenType.NEG)
+            if (next.type == TokenType.NEG)
             {
                 consumed.addLast(sequence.removeFirst());
                 prefixes.addLast(next);
             }
-            else if (next.token == TokenType.UNIV || next.token == TokenType.EXIST)
+            else if (next.type == TokenType.UNIV || next.type == TokenType.EXIST)
             {
                 consumed.addLast(sequence.removeFirst());
                 currQuant = next;
                 
                 if (sequence.isEmpty() ||
-                    sequence.peekFirst().token != TokenType.SYM ||
+                    sequence.peekFirst().type != TokenType.SYM ||
                     !Character.isLowerCase(sequence.peekFirst().sym))
                 {
                     // Incomplete quantification.
@@ -122,7 +123,7 @@ class PrefixParser implements ParseLevel
                 }
 
                 while (!sequence.isEmpty() &&
-                       sequence.peekFirst().token == TokenType.SYM &&
+                       sequence.peekFirst().type == TokenType.SYM &&
                        Character.isLowerCase(sequence.peekFirst().sym))
                 {
                     prefixes.addLast(currQuant);
@@ -158,21 +159,21 @@ class PrefixParser implements ParseLevel
         {
             last = prefixes.removeLast();
 
-            if (last.token == TokenType.NEG)
+            if (last.type == TokenType.NEG)
             {
                 Negation newNeg = new Negation(base);
                 base = newNeg;
             } 
-            else if (last.token == TokenType.SYM) 
+            else if (last.type == TokenType.SYM) 
             {
                 currQuant = prefixes.removeLast();
                 WFF quant;
 
-                if (currQuant.token == TokenType.UNIV)
+                if (currQuant.type == TokenType.UNIV)
                 {
                     quant = new Universal(base, last.sym);
                 }
-                else if (currQuant.token == TokenType.EXIST)
+                else if (currQuant.type == TokenType.EXIST)
                 {
                     quant = new Existential(base, last.sym);
                 }
@@ -251,52 +252,62 @@ public class Parser
    
     /*
      * Implements the actual logic of the precedence hierarchy.
-     * Match either with the given parser by itself,
-     * or with that parser, followed by the given connective, then a general WFF.
+     * Try first to match with a WFF whose main connective is the given one,
+     * and whose right sub-formula uses the given parser, and the left is a generic WFF.
+     * If this fails, then try to match with the given parser by itself.
      */
-    public static ParseResult parseConn(LinkedList<Token> sequence, TokenType token, ConnType conn,  ParseLevel parser)
+    public static ParseResult parseConn(LinkedList<Token> sequence, TokenType type, ConnType conn,  ParseLevel parser)
     {
-        ParseResult left = parser.parse(sequence);
+        int connIndex = sequence.lastIndexOf(new Token(type));
 
-        if (left == null || left.wff == null)
+        if (connIndex == -1)
         {
+            return parser.parse(sequence);
+        }
+
+        LinkedList<Token> pre = popN(sequence, connIndex);
+        
+        ParseResult left = parseWFF(pre);
+
+        if (left == null)
+        {
+            transferSequence(pre, sequence);
+            return parser.parse(sequence);
+        }
+        else if (!pre.isEmpty())
+        {
+            transferSequence(pre, sequence);
+            transferSequence(left.consumed, sequence);
+            return parser.parse(sequence);
+        }
+
+        left.consumed.addLast(sequence.removeFirst());
+        ParseResult right = parser.parse(sequence);
+
+        if (right ==  null)
+        {
+
+            transferSequence(left.consumed, sequence);
             return null;
         }
-        else if (sequence.isEmpty())
+        else 
         {
-            return left;
-        }
-        else
-        {
-            Token next = sequence.peekFirst();
-
-            if (next.token == token)
-            {
-                left.consumed.addLast(sequence.removeFirst());
-                ParseResult right = parseWFF(sequence);
-                
-                if (right.wff == null)
-                {
-                    transferSequence(left.consumed, sequence);
-                    return null;
-                }
-                
-                right.wff = new BinaryConn(left.wff, right.wff, conn);
-                return right;
-            }
-            
-            return left;
+            transferSequence(left.consumed, right.consumed);
+            right.wff = new BinaryConn(left.wff, right.wff, conn);
+            return right;
         }
     } 
 
     // Try matching a predicate, else try a parenthesised wff.
     public static ParseResult parseBase(LinkedList<Token> sequence)
     {
+        if (sequence.isEmpty()) return null;
+
         ParseResult base = parsePred(sequence);
 
         if (base == null)
         {
-            if (sequence.peekFirst().token == TokenType.LPAREN)
+            if (sequence.peekFirst().type == TokenType.LPAREN)
             {
                 Token lparen = sequence.removeFirst();
                 base = parseWFF(sequence);
@@ -308,15 +319,16 @@ public class Parser
                 }
 
                 base.consumed.addFirst(lparen);
-
-                if (sequence.peekFirst().token == TokenType.RPAREN)
+                
+                if (sequence.isEmpty() || sequence.peekFirst().type != TokenType.RPAREN) {
+                    transferSequence(base.consumed, sequence);
+                    return null;
+                }
+                else
                 {
                     base.consumed.addLast(sequence.removeFirst());
                     return base;
                 }
-
-                transferSequence(base.consumed, sequence);
-                return null;
             }
 
                 return null;
@@ -330,7 +342,7 @@ public class Parser
     public static ParseResult parsePred(LinkedList<Token> sequence)
     {
         if (sequence.isEmpty() ||
-            sequence.peekFirst().token != TokenType.SYM || 
+            sequence.peekFirst().type != TokenType.SYM || 
             !Character.isUpperCase(sequence.peekFirst().sym))
         {
             return null;
@@ -346,7 +358,7 @@ public class Parser
 
         while (!sequence.isEmpty())
         {
-            if (sequence.peekFirst().token != TokenType.SYM ||
+            if (sequence.peekFirst().type != TokenType.SYM ||
                 !Character.isLowerCase(sequence.peekFirst().sym))
             {
                     break;
@@ -373,6 +385,19 @@ public class Parser
             b.addFirst(iter.next());
             iter.remove();
         }
+    }
+
+    public static <E> LinkedList<E> popN(LinkedList<E> in, int n)
+    {
+        LinkedList<E> out = new LinkedList<E>();
+
+        for (int i = 0; i < n; ++i)
+        {
+            if (in.isEmpty()) break;
+            out.addLast(in.removeFirst());
+        }
+
+        return out;
     }
 }
 

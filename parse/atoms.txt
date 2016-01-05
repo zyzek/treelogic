@@ -4,7 +4,7 @@ COND → -> \implies
 BICOND ↔ <-> \iff
 NEG ¬ ! ~ \not
 UNIV ∀ \forall \all
-EXIST ∃ \exists \any
+EXIST ∃ \exists \some
 LPAREN (
 RPAREN )
 COMMA ,

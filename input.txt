@@ -1,11 +1,8 @@
-A \and B \iff C
-! \exists z \forall x (((Ax & ! \exists y By) v C) <-> (!D -> E))
+A -> B -> C -> D
 
-((A))
-\exists x \any y ∃ z Qxyz
-\forall x \all y ∀z Pxyz
-! ~ \not ¬ A
-A \iff B <-> C ↔ D
-A -> B \implies C → D
-A v B | C \or D ∨ E
-A \and B & C ^ D ∧ E
+(! ~ \not ¬ \forall x (\all y ∀z Pxyz \and ((A)) \iff \exists x \some y ∃ z Qxyz)) \or A \iff B <-> C ↔ D \or A -> B \implies C → D \and A vB | C \or D ∨ E \and A \and B & C ^ D ∧ E
+
+
+A \and B \iff C
+! \exists z \forall x (Ax & ! \exists y By v C <-> !D -> E)
+
