@@ -1,8 +1,7 @@
-A -> B -> C -> D
-
 (! ~ \not ¬ \forall x (\all y ∀z Pxyz \and ((A)) \iff \exists x \some y ∃ z Qxyz)) \or A \iff B <-> C ↔ D \or A -> B \implies C → D \and A vB | C \or D ∨ E \and A \and B & C ^ D ∧ E
 
 
+A -> B -> C -> D
 A \and B \iff C
 ! \exists z \forall x (Ax & ! \exists y By v C <-> !D -> E)
 
