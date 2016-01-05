@@ -26,9 +26,9 @@ import java.util.Iterator;
  *
  * As a grammar:
  *
- * WFF      :=  WFF ↔ COND | COND
- * DISJ     :=  WFF ∨ CONJ | CONJ
- * CONJ     :=  WFF ∧ UNARY | UNARY
+ * WFF      :=  COND ↔ WFF | COND
+ * DISJ     :=  CONJ ∨ WFF | CONJ
+ * CONJ     :=  UNARY ∧ WFF | UNARY
  * UNARY    :=  PREF* BASE
  * BASE     :=  PRED | ( WFF )
  * PREF     :=  ¬ | ∃ LOWER+ | ∀ LOWER+
@@ -36,10 +36,10 @@ import java.util.Iterator;
  * UPPER    :=  [A..Z]
  * LOWER    :=  [a..z]
  *
- * That the descent of the hierarchy takes place upon the right operand means that
- * the binary operators are left-associative.
- * This may change the meaning of expressions involving conditionals, if you are expecting
- * some other associativity behaviour -- so parenthesise stuff!
+ * As the descent of the hierarchy takes place first upon the left operand,
+ * the binary operators are right-associative.
+ * The meaning of expressions involving strings of conditionals can differ depending on
+ * associativity; so parenthesise the necessaries.
  */
 
 // Classes implementing this handle parsing the operands of binary connectives.
@@ -215,11 +215,11 @@ class ParseResult
 
 
 // We consume tokens from left to right.
-// Each parsing function returns either: 
+// Each function returns either: 
 //  - The successfully-parsed wff, with the consumed symbols removed from the input sequence;
 //  - null, if the parse fails, with the token sequence unmodified.
-// The consumed token list is required so that, if the parse fails at any point, the input
-// sequence can be reconstituted, and alternative parses tried.
+// The consumed token list is required so that the input sequence can be reconstituted and
+// alternative parses tried, if matching fails at any point.
 public class Parser
 {
     // These are clumsy, but save some code duplication... I wish I had first-class functions.
@@ -233,15 +233,14 @@ public class Parser
     public static WFF parse(LinkedList<Token> sequence)
     {
         ParseResult res = parseWFF(sequence);
-
+        
+        // Note that we check if there are unconsumed tokens: this is considered to be a failed
+        // parse, as it must result from an invalid formula.
         if (res == null || !sequence.isEmpty())
         {
             return null;
         }
         
-        // Note that we don't check if there are any unconsumed tokens.
-        // One might consider such a case to result in a failed parse: we don't do so here,
-        // so that technically-invalid formulae could result in successful parses.
         return res.wff;
     }
     
@@ -252,13 +251,14 @@ public class Parser
    
     /*
      * Implements the actual logic of the precedence hierarchy.
-     * Try first to match with a WFF whose main connective is the given one,
-     * and whose right sub-formula uses the given parser, and the left is a generic WFF.
+     * Try first to match with a WFF whose main connective is the first occurrence of the
+     * one given, whose left sub-formula results from the given parser, and whose right
+     * sub-formula is a generic WFF.
      * If this fails, then try to match with the given parser by itself.
      */
     public static ParseResult parseConn(LinkedList<Token> sequence, TokenType type, ConnType conn,  ParseLevel parser)
     {
-        int connIndex = sequence.lastIndexOf(new Token(type));
+        int connIndex = sequence.indexOf(new Token(type));
 
         if (connIndex == -1)
         {
@@ -267,7 +267,7 @@ public class Parser
 
         LinkedList<Token> pre = popN(sequence, connIndex);
         
-        ParseResult left = parseWFF(pre);
+        ParseResult left = parser.parse(pre);
 
         if (left == null)
         {
@@ -282,7 +282,7 @@ public class Parser
         }
 
         left.consumed.addLast(sequence.removeFirst());
-        ParseResult right = parser.parse(sequence);
+        ParseResult right = parseWFF(sequence);
 
         if (right ==  null)
         {
@@ -386,7 +386,8 @@ public class Parser
             iter.remove();
         }
     }
-
+    
+    // Remove the first n elements from a list, and return those elements as a new list.
     public static <E> LinkedList<E> popN(LinkedList<E> in, int n)
     {
         LinkedList<E> out = new LinkedList<E>();
