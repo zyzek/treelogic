@@ -2,7 +2,8 @@ import logic.*;
 import logic.conn.*;
 import parse.*;
 
-import java.util.LinkedList;
+import java.util.*;
+import java.io.*;
 import javax.swing.*;
 
 public class TreeLogic
@@ -11,37 +12,72 @@ public class TreeLogic
     {
         LinkedList<Token> sequence = new LinkedList<Token>();
 
-        sequence.addLast(new Token(TokenType.NEG, '~'));
-        sequence.addLast(new Token(TokenType.UNIV, 'A'));
-        sequence.addLast(new Token(TokenType.SYM, 'x'));
-        sequence.addLast(new Token(TokenType.SYM, 'z'));
-        sequence.addLast(new Token(TokenType.EXIST, 'E'));
-        sequence.addLast(new Token(TokenType.SYM, 'y'));
-        sequence.addLast(new Token(TokenType.LPAREN, '('));
-        sequence.addLast(new Token(TokenType.SYM, 'F'));
-        sequence.addLast(new Token(TokenType.BICOND, '%'));
-        sequence.addLast(new Token(TokenType.LPAREN, '('));
-        sequence.addLast(new Token(TokenType.LPAREN, '('));
-        sequence.addLast(new Token(TokenType.SYM, 'R'));
-        sequence.addLast(new Token(TokenType.DISJ, 'v'));
-        sequence.addLast(new Token(TokenType.LPAREN, '('));
-        sequence.addLast(new Token(TokenType.SYM, 'P'));
-        sequence.addLast(new Token(TokenType.SYM, 'x'));
-        sequence.addLast(new Token(TokenType.CONJ, '^'));
-        sequence.addLast(new Token(TokenType.SYM, 'Q'));
-        sequence.addLast(new Token(TokenType.SYM, 'a'));
-        sequence.addLast(new Token(TokenType.SYM, 'y'));
-        sequence.addLast(new Token(TokenType.SYM, 'z'));
-        sequence.addLast(new Token(TokenType.RPAREN, ')'));
-        sequence.addLast(new Token(TokenType.RPAREN, ')'));
-        sequence.addLast(new Token(TokenType.COND, '>'));
-        sequence.addLast(new Token(TokenType.SYM, 'T'));
-        sequence.addLast(new Token(TokenType.RPAREN, ')'));
-        sequence.addLast(new Token(TokenType.RPAREN, ')'));
+        sequence.addLast(new Token(TokenType.NEG));
+        sequence.addLast(new Token(TokenType.UNIV));
+        sequence.addLast(new Token('x'));
+        sequence.addLast(new Token('z'));
+        sequence.addLast(new Token(TokenType.EXIST));
+        sequence.addLast(new Token('y'));
+        sequence.addLast(new Token(TokenType.LPAREN));
+        sequence.addLast(new Token('F'));
+        sequence.addLast(new Token(TokenType.BICOND));
+        sequence.addLast(new Token(TokenType.LPAREN));
+        sequence.addLast(new Token(TokenType.LPAREN));
+        sequence.addLast(new Token('R'));
+        sequence.addLast(new Token(TokenType.DISJ));
+        sequence.addLast(new Token(TokenType.LPAREN));
+        sequence.addLast(new Token('P'));
+        sequence.addLast(new Token('x'));
+        sequence.addLast(new Token(TokenType.CONJ));
+        sequence.addLast(new Token('Q'));
+        sequence.addLast(new Token('a'));
+        sequence.addLast(new Token('y'));
+        sequence.addLast(new Token('z'));
+        sequence.addLast(new Token(TokenType.RPAREN));
+        sequence.addLast(new Token(TokenType.RPAREN));
+        sequence.addLast(new Token(TokenType.COND));
+        sequence.addLast(new Token('T'));
+        sequence.addLast(new Token(TokenType.RPAREN));
+        sequence.addLast(new Token(TokenType.RPAREN));
+        
+
+        String line;
+
+        try
+        {
+            BufferedReader reader = new BufferedReader(new FileReader("input.txt"));
+
+            if ((line = reader.readLine()) != null)
+            {
+                line = line.trim();
+            }
+            else
+            {
+                line = "A \\and B";
+            }
+        }
+        catch (IOException ex)
+        {
+            System.out.println("Unable to open input file.");
+            line = "A \\and B";
+        }
+
+
+        System.out.println(line);
+        sequence = Lexer.tokenise(line);
+        System.out.println(sequence);
         
         WFF wff = Parser.parse(sequence);
+        final String wffString;
 
-        final String wffString = wff.toString();
+        if (wff != null)
+        {
+            wffString = wff.toString();
+        }
+        else
+        {
+            wffString = "Failed parse. First unconsumed token: " + sequence.peekFirst().toString();
+        }
 
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {

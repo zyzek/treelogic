@@ -1,0 +1,10 @@
+CONJ ∧ & ^ \and
+DISJ ∨ | v \or
+COND → -> \implies
+BICOND ↔ <-> \iff
+NEG ¬ ! ~ \not
+UNIV ∀ \forall \all
+EXIST ∃ \exists \any
+LPAREN (
+RPAREN )
+COMMA ,

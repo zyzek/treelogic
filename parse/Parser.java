@@ -139,9 +139,8 @@ class PrefixParser implements ParseLevel
         
         // Having consumed all leading unaries, parse the wff they bind.
         ParseResult res = Parser.parseBase(sequence);
-        WFF base = res.wff;
         
-        if (base == null)
+        if (res == null || res.wff == null)
         {
             Parser.transferSequence(consumed, sequence);
             return null;
@@ -150,7 +149,9 @@ class PrefixParser implements ParseLevel
         {
             Parser.transferSequence(consumed, res.consumed);
         }
-        
+
+        WFF base = res.wff;
+
         // Attach the prefixes extracted earlier; 
         // process symbols in reverse: innermost to outermost.
         while (!prefixes.isEmpty()) 
@@ -232,7 +233,7 @@ public class Parser
     {
         ParseResult res = parseWFF(sequence);
 
-        if (res == null)
+        if (res == null || !sequence.isEmpty())
         {
             return null;
         }
@@ -256,8 +257,8 @@ public class Parser
     public static ParseResult parseConn(LinkedList<Token> sequence, TokenType token, ConnType conn,  ParseLevel parser)
     {
         ParseResult left = parser.parse(sequence);
-        
-        if (left.wff == null)
+
+        if (left == null || left.wff == null)
         {
             return null;
         }
